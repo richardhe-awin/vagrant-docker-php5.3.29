@@ -44,8 +44,9 @@ Vagrant.configure(2) do |config|
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
+    vb.name = "php5.3.29"
     # Display the VirtualBox GUI when booting the machine
-    vb.customize ['modifyvm', :id, '--memory', '1024', '--cpus', '1', '--ioapic', 'on']
+    vb.customize ['modifyvm', :id, '--memory', '4096', '--cpus', '4', '--ioapic', 'on']
   end
   #
   # View the documentation for the provider you are using for more
@@ -70,6 +71,18 @@ Vagrant.configure(2) do |config|
     sudo apt-get upgrade python -y
     sudo apt-get install python-pip -y
     sudo apt-get install ansible -y
+    
+    sudo gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-key 89DF5277 \
+    && sudo gpg -a --export 89DF5277 | apt-key add - \
+    && sudo echo "deb http://packages.dotdeb.org squeeze all" > /etc/apt/sources.list.d/dotdeb.list \
+    && sudo echo "deb http://httpredir.debian.org/debian squeeze main" > /etc/apt/sources.list.d/squeeze.list \
+    && sudo apt-get update \
+    && sudo apt-get install -y --force-yes --no-install-recommends \
+          php5-common=5.3.29-1~dotdeb.0 php5-cli=5.3.29-1~dotdeb.0 php5-curl=5.3.29-1~dotdeb.0 php5-intl=5.3.29-1~dotdeb.0 php5-mysql=5.3.29-1~dotdeb.0 \
+          php-pear=5.3.29-1~dotdeb.0 php5-dev=5.3.29-1~dotdeb.0
+    sudo apt-get clean
+    sudo rm -r /var/lib/apt/lists/*
+    
     mkdir -p /home/vagrant/Projects
     sudo apt-get install htop -y
     sudo apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
@@ -82,7 +95,7 @@ Vagrant.configure(2) do |config|
     sudo usermod -aG docker vagrant
     sudo pip install -U docker-compose 
     sudo rm -f /etc/default/docker
-#    echo 'DOCKER_OPTS="$DOCKER_OPTS --insecure-registry={your private docker hub host name}:5000"' | sudo tee -a /etc/default/docker
+    # echo 'DOCKER_OPTS="$DOCKER_OPTS --insecure-registry={your private docker hub host name}:5000"' | sudo tee -a /etc/default/docker
     sudo service docker restart
   SHELL
 
