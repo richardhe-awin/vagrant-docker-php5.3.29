@@ -66,23 +66,42 @@ Vagrant.configure(2) do |config|
     sudo apt-get update
     sudo apt-get install language-pack-en -y
     sudo apt-get install software-properties-common -y
-    sudo apt-add-repository ppa:ansible/ansible
-    sudo apt-get update
     sudo apt-get upgrade python -y
     sudo apt-get install python-pip -y
-    sudo apt-get install ansible -y
-    
-    sudo gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-key 89DF5277 \
-    && sudo gpg -a --export 89DF5277 | apt-key add - \
-    && sudo echo "deb http://packages.dotdeb.org squeeze all" > /etc/apt/sources.list.d/dotdeb.list \
-    && sudo echo "deb http://httpredir.debian.org/debian squeeze main" > /etc/apt/sources.list.d/squeeze.list \
+    sudo apt-get install linux-headers-generic build-essential dkms -y
+
+    # guest additions
+    cd /tmp
+    echo "downloading VBoxGuestAdditions_5.0.10.iso"
+    wget -q http://download.virtualbox.org/virtualbox/5.0.10/VBoxGuestAdditions_5.0.10.iso
+    sudo mkdir /media/VBoxGuestAdditions
+    sudo mount -o loop,ro VBoxGuestAdditions_5.0.10.iso /media/VBoxGuestAdditions
+    sudo sh /media/VBoxGuestAdditions/VBoxLinuxAdditions.run <<-EOF
+yes
+EOF
+    rm VBoxGuestAdditions_5.0.10.iso
+    sudo umount /media/VBoxGuestAdditions
+    sudo rmdir /media/VBoxGuestAdditions
+
+    # php 5.3.29
+    sudo rm -f /etc/apt/sources.list.d/dotdeb.list \
+    && sudo rm -f /etc/apt/sources.list.d/squeeze.list \
+    && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-key AED4B06F473041FA \
+    && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-key 64481591B98321F9 \
+    && gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-key E9C74FEEA2098A6E \
+    && gpg -a --export AED4B06F473041FA | sudo apt-key add - \
+    && gpg -a --export 64481591B98321F9 | sudo apt-key add - \
+    && gpg -a --export E9C74FEEA2098A6E | sudo apt-key add - \
+    && sudo echo "deb http://packages.dotdeb.org squeeze all" | sudo tee -a /etc/apt/sources.list.d/dotdeb.list \
+    && sudo echo "deb http://httpredir.debian.org/debian squeeze main" | sudo tee -a /etc/apt/sources.list.d/squeeze.list \
     && sudo apt-get update \
     && sudo apt-get install -y --force-yes --no-install-recommends \
           php5-common=5.3.29-1~dotdeb.0 php5-cli=5.3.29-1~dotdeb.0 php5-curl=5.3.29-1~dotdeb.0 php5-intl=5.3.29-1~dotdeb.0 php5-mysql=5.3.29-1~dotdeb.0 \
-          php-pear=5.3.29-1~dotdeb.0 php5-dev=5.3.29-1~dotdeb.0
-    sudo apt-get clean
-    sudo rm -r /var/lib/apt/lists/*
-    
+          php-pear=5.3.29-1~dotdeb.0 php5-dev=5.3.29-1~dotdeb.0 \
+    && sudo apt-get clean \
+    && curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+
+    # docker
     mkdir -p /home/vagrant/Projects
     sudo apt-get install htop -y
     sudo apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
@@ -95,8 +114,9 @@ Vagrant.configure(2) do |config|
     sudo usermod -aG docker vagrant
     sudo pip install -U docker-compose 
     sudo rm -f /etc/default/docker
-    # echo 'DOCKER_OPTS="$DOCKER_OPTS --insecure-registry={your private docker hub host name}:5000"' | sudo tee -a /etc/default/docker
+    # echo 'DOCKER_OPTS="$DOCKER_ OPTS --insecure-registry={your private docker hub host name}:5000"' | sudo tee -a /etc/default/docker
     sudo service docker restart
+
   SHELL
 
 end
