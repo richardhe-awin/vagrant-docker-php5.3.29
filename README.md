@@ -1,4 +1,4 @@
-# vagrant-docker
+# vagrant-docker-php5.3.29
 A Vagrant VM have docker and docker compose installed ready to roll
 
 ### Prerequisites
