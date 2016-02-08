@@ -114,7 +114,7 @@ EOF
     sudo usermod -aG docker vagrant
     sudo pip install -U docker-compose 
     sudo rm -f /etc/default/docker
-    # echo 'DOCKER_OPTS="$DOCKER_ OPTS --insecure-registry={your private docker hub host name}:5000"' | sudo tee -a /etc/default/docker
+    # echo 'DOCKER_OPTS="$DOCKER_OPTS --insecure-registry={your private docker hub host name}:5000"' | sudo tee -a /etc/default/docker
     sudo service docker restart
 
   SHELL
